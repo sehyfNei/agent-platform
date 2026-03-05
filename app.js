@@ -1,170 +1,218 @@
 const state = {
-  activities: [
-    'Sales bot resolved 84 chats automatically.',
-    'WhatsApp channel connected for Support.',
-    'Knowledge article updated: Refund Policy.',
-    'New intent added: check_order_status.'
+  screenMeta: {
+    overview: 'Monitor automation, quality, and business outcomes.',
+    studio: 'Design conversational journeys with reusable building blocks.',
+    inbox: 'Track live conversations and simulate handoff scenarios.',
+    knowledge: 'Maintain trusted content for retrieval and FAQ responses.',
+    channels: 'Connect and govern omnichannel customer touchpoints.',
+    analytics: 'Measure containment, escalations, and intent-level quality.'
+  },
+  intents: [
+    { name: 'Order Status', volume: 420, containment: 88, escalation: '12%' },
+    { name: 'Refund Request', volume: 196, containment: 79, escalation: '21%' },
+    { name: 'Product Search', volume: 388, containment: 82, escalation: '18%' },
+    { name: 'Cancel Subscription', volume: 88, containment: 74, escalation: '26%' }
   ],
-  paletteNodes: ['Welcome', 'Collect Input', 'API Call', 'Condition', 'Handover'],
+  nodeLibrary: ['Message', 'Question', 'Condition', 'API', 'Knowledge Search', 'Handoff'],
   flow: [
-    { id: 1, label: 'Welcome', message: 'Hi! How can I help you today?' },
-    { id: 2, label: 'Collect Email', message: 'Please share your email address.' }
+    { id: 1, label: 'Welcome', message: 'Hi! I can help with orders, refunds, and product questions.' },
+    { id: 2, label: 'Intent Detection', message: 'Let me understand your request first.' },
+    { id: 3, label: 'Fulfillment', message: 'I found your order details. Would you like updates by WhatsApp?' }
   ],
-  selectedNodeId: 1,
-  knowledge: ['Refund Policy', 'Shipping timelines', 'Account deletion process'],
+  selectedStepId: 1,
+  conversations: [
+    'Anika · Order delay · Waiting 2m',
+    'Ravi · Refund status · Waiting 30s',
+    'Maya · Product recommendation · Bot resolved'
+  ],
+  chat: [
+    { role: 'bot', text: 'Hello! I am your virtual assistant. What can I help with?' },
+    { role: 'user', text: 'Where is my order?' },
+    { role: 'bot', text: 'Please share your order ID so I can check the status.' }
+  ],
+  kb: ['Return policy', 'Shipping SLAs by region', 'Subscription cancellation process'],
   channels: [
-    { name: 'Web Widget', connected: true },
+    { name: 'Website Widget', connected: true },
     { name: 'WhatsApp', connected: true },
     { name: 'Instagram', connected: false },
     { name: 'Facebook Messenger', connected: false },
-    { name: 'Google Business', connected: false },
-    { name: 'Slack', connected: true }
-  ],
-  intents: [
-    { name: 'Order Status', volume: 420, resolution: '88%' },
-    { name: 'Return Request', volume: 196, resolution: '79%' },
-    { name: 'Product Info', volume: 388, resolution: '82%' }
+    { name: 'Google Business Messages', connected: false },
+    { name: 'Slack (Internal)', connected: true }
   ]
 };
 
-const elements = {
+const el = {
   navItems: document.querySelectorAll('.nav-item'),
   screens: document.querySelectorAll('.screen'),
   screenTitle: document.getElementById('screen-title'),
-  activityList: document.getElementById('activity-list'),
-  nodePalette: document.getElementById('node-palette'),
+  subtitle: document.getElementById('subtitle'),
+  deployBtn: document.getElementById('deploy-btn'),
+  simulateBtn: document.getElementById('simulate-btn'),
+  toast: document.getElementById('toast'),
+  kpiConversations: document.getElementById('kpi-conversations'),
+  intentBars: document.getElementById('intent-bars'),
+  nodeLibrary: document.getElementById('node-library'),
   flowCanvas: document.getElementById('flow-canvas'),
-  nodeForm: document.getElementById('node-form'),
-  nodeLabel: document.getElementById('node-label'),
-  nodeMessage: document.getElementById('node-message'),
+  stepForm: document.getElementById('step-form'),
+  stepLabel: document.getElementById('step-label'),
+  stepMessage: document.getElementById('step-message'),
+  addStepForm: document.getElementById('add-step-form'),
+  newStepLabel: document.getElementById('new-step-label'),
+  conversationList: document.getElementById('conversation-list'),
+  chatWindow: document.getElementById('chat-window'),
+  chatForm: document.getElementById('chat-form'),
+  chatInput: document.getElementById('chat-input'),
   kbForm: document.getElementById('kb-form'),
   kbTitle: document.getElementById('kb-title'),
   kbList: document.getElementById('kb-list'),
   channelList: document.getElementById('channel-list'),
-  intentTable: document.getElementById('intent-table'),
-  simulateBtn: document.getElementById('simulate-btn'),
-  deployBtn: document.getElementById('deploy-btn'),
-  toast: document.getElementById('toast')
+  intentTable: document.getElementById('intent-table')
 };
 
-function showToast(message) {
-  elements.toast.textContent = message;
-  elements.toast.classList.add('visible');
-  setTimeout(() => elements.toast.classList.remove('visible'), 1800);
+function toast(message) {
+  el.toast.textContent = message;
+  el.toast.classList.add('visible');
+  setTimeout(() => el.toast.classList.remove('visible'), 1800);
 }
 
-function renderActivity() {
-  elements.activityList.innerHTML = state.activities.map((a) => `<li>${a}</li>`).join('');
-}
-
-function renderPalette() {
-  elements.nodePalette.innerHTML = state.paletteNodes
-    .map((node) => `<div class="node-item">${node}</div>`)
+function renderOverview() {
+  el.intentBars.innerHTML = state.intents
+    .map(
+      (item) => `<div class="bar-row"><span>${item.name}</span><div class="track"><div class="fill" style="width:${item.containment}%"></div></div><strong>${item.containment}%</strong></div>`
+    )
     .join('');
 }
 
-function selectNode(id) {
-  state.selectedNodeId = id;
-  const node = state.flow.find((n) => n.id === id);
-  if (!node) return;
-  elements.nodeLabel.value = node.label;
-  elements.nodeMessage.value = node.message;
-  renderFlow();
-}
-
-function renderFlow() {
-  elements.flowCanvas.innerHTML = state.flow
+function renderStudio() {
+  el.nodeLibrary.innerHTML = state.nodeLibrary.map((n) => `<div class="node">${n}</div>`).join('');
+  el.flowCanvas.innerHTML = state.flow
     .map(
-      (node) =>
-        `<button class="flow-node" data-id="${node.id}" style="text-align:left; background:${
-          state.selectedNodeId === node.id ? '#312e81' : '#1f2937'
-        }"><strong>${node.label}</strong><div>${node.message}</div></button>`
+      (step) =>
+        `<button class="flow-step ${state.selectedStepId === step.id ? 'active' : ''}" data-id="${step.id}"><strong>${step.label}</strong><div>${step.message}</div></button>`
     )
     .join('');
 
-  elements.flowCanvas.querySelectorAll('.flow-node').forEach((el) => {
-    el.addEventListener('click', () => selectNode(Number(el.dataset.id)));
+  el.flowCanvas.querySelectorAll('.flow-step').forEach((btn) => {
+    btn.addEventListener('click', () => selectStep(Number(btn.dataset.id)));
   });
 }
 
+function renderInbox() {
+  el.conversationList.innerHTML = state.conversations.map((c) => `<li>${c}</li>`).join('');
+  el.chatWindow.innerHTML = state.chat
+    .map((m) => `<div class="msg ${m.role}">${m.text}</div>`)
+    .join('');
+  el.chatWindow.scrollTop = el.chatWindow.scrollHeight;
+}
+
 function renderKnowledge() {
-  elements.kbList.innerHTML = state.knowledge.map((k) => `<li>${k}</li>`).join('');
+  el.kbList.innerHTML = state.kb.map((item) => `<li>${item}</li>`).join('');
 }
 
 function renderChannels() {
-  elements.channelList.innerHTML = state.channels
+  el.channelList.innerHTML = state.channels
     .map(
-      (c) =>
-        `<div class="channel ${c.connected ? 'connected' : ''}"><span>${c.name}</span><span>${
-          c.connected ? 'Connected' : 'Not connected'
-        }</span></div>`
+      (ch) =>
+        `<div class="channel ${ch.connected ? 'connected' : ''}"><strong>${ch.name}</strong><div class="status">${
+          ch.connected ? 'Connected' : 'Not connected'
+        }</div></div>`
     )
     .join('');
 }
 
-function renderIntents() {
-  elements.intentTable.innerHTML = state.intents
-    .map((intent) => `<tr><td>${intent.name}</td><td>${intent.volume}</td><td>${intent.resolution}</td></tr>`)
+function renderAnalytics() {
+  el.intentTable.innerHTML = state.intents
+    .map((i) => `<tr><td>${i.name}</td><td>${i.volume}</td><td>${i.containment}%</td><td>${i.escalation}</td></tr>`)
     .join('');
 }
 
+function selectStep(id) {
+  state.selectedStepId = id;
+  const step = state.flow.find((item) => item.id === id);
+  if (!step) return;
+  el.stepLabel.value = step.label;
+  el.stepMessage.value = step.message;
+  renderStudio();
+}
+
 function setupNavigation() {
-  elements.navItems.forEach((item) => {
+  el.navItems.forEach((item) => {
     item.addEventListener('click', () => {
-      elements.navItems.forEach((n) => n.classList.remove('active'));
-      item.classList.add('active');
-      const screen = item.dataset.screen;
-      elements.screens.forEach((s) => s.classList.toggle('active', s.id === screen));
-      elements.screenTitle.textContent = item.textContent;
+      const target = item.dataset.screen;
+      el.navItems.forEach((n) => n.classList.toggle('active', n === item));
+      el.screens.forEach((screen) => screen.classList.toggle('active', screen.id === target));
+      el.screenTitle.textContent = item.textContent;
+      el.subtitle.textContent = state.screenMeta[target];
     });
   });
 }
 
 function setupForms() {
-  elements.nodeForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const node = state.flow.find((n) => n.id === state.selectedNodeId);
-    if (!node) return;
-    node.label = elements.nodeLabel.value.trim();
-    node.message = elements.nodeMessage.value.trim();
-    renderFlow();
-    showToast('Node updated.');
+  el.stepForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const step = state.flow.find((item) => item.id === state.selectedStepId);
+    if (!step) return;
+    step.label = el.stepLabel.value.trim();
+    step.message = el.stepMessage.value.trim();
+    renderStudio();
+    toast('Journey step updated.');
   });
 
-  elements.kbForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = elements.kbTitle.value.trim();
-    if (!title) return;
-    state.knowledge.unshift(title);
-    elements.kbTitle.value = '';
+  el.addStepForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const label = el.newStepLabel.value.trim();
+    if (!label) return;
+    const id = Math.max(...state.flow.map((step) => step.id)) + 1;
+    state.flow.push({ id, label, message: 'Draft message...' });
+    el.newStepLabel.value = '';
+    selectStep(id);
+    toast('New journey step added.');
+  });
+
+  el.chatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const text = el.chatInput.value.trim();
+    if (!text) return;
+    state.chat.push({ role: 'user', text });
+    state.chat.push({ role: 'bot', text: 'Thanks! I am checking that in our system.' });
+    el.chatInput.value = '';
+    renderInbox();
+  });
+
+  el.kbForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const article = el.kbTitle.value.trim();
+    if (!article) return;
+    state.kb.unshift(article);
+    el.kbTitle.value = '';
     renderKnowledge();
-    showToast('Knowledge article added.');
+    toast('Knowledge article added.');
   });
 }
 
 function setupActions() {
-  elements.simulateBtn.addEventListener('click', () => {
-    const conversations = Number(elements.conversationsCount?.textContent || 1284) + Math.floor(Math.random() * 10);
-    document.getElementById('conversations-count').textContent = conversations.toLocaleString();
-    showToast('Simulation completed: 9 conversations processed.');
+  el.simulateBtn.addEventListener('click', () => {
+    const count = Number(el.kpiConversations.textContent.replace(/,/g, '')) + Math.floor(Math.random() * 20 + 4);
+    el.kpiConversations.textContent = count.toLocaleString();
+    toast('Simulation completed with synthetic traffic.');
   });
 
-  elements.deployBtn.addEventListener('click', () => {
-    showToast('Agent deployed to Web Widget and WhatsApp.');
+  el.deployBtn.addEventListener('click', () => {
+    toast('Agent published to Website Widget and WhatsApp.');
   });
 }
 
 function init() {
-  renderActivity();
-  renderPalette();
-  renderFlow();
+  renderOverview();
+  renderStudio();
+  renderInbox();
   renderKnowledge();
   renderChannels();
-  renderIntents();
+  renderAnalytics();
   setupNavigation();
   setupForms();
   setupActions();
-  selectNode(state.selectedNodeId);
+  selectStep(state.selectedStepId);
 }
 
 init();

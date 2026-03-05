@@ -3,17 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Platform Replica</title>
+    <title>AI Agent Platform Replica</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="layout">
       <aside class="sidebar">
-        <h1>Agent Platform</h1>
+        <div class="brand">
+          <div class="dot"></div>
+          <div>
+            <h1>Orchestrator AI</h1>
+            <p>Enterprise Agent Cloud</p>
+          </div>
+        </div>
+
         <nav>
-          <button class="nav-item active" data-screen="dashboard">Dashboard</button>
-          <button class="nav-item" data-screen="builder">Agent Builder</button>
-          <button class="nav-item" data-screen="knowledge">Knowledge Base</button>
+          <button class="nav-item active" data-screen="overview">Overview</button>
+          <button class="nav-item" data-screen="studio">Studio</button>
+          <button class="nav-item" data-screen="inbox">Inbox</button>
+          <button class="nav-item" data-screen="knowledge">Knowledge</button>
           <button class="nav-item" data-screen="channels">Channels</button>
           <button class="nav-item" data-screen="analytics">Analytics</button>
         </nav>
@@ -21,42 +29,66 @@
 
       <main class="content">
         <header class="topbar">
-          <h2 id="screen-title">Dashboard</h2>
+          <div>
+            <h2 id="screen-title">Overview</h2>
+            <p id="subtitle">Monitor automation, quality, and business outcomes.</p>
+          </div>
           <div class="actions">
-            <button id="simulate-btn">Simulate Conversation</button>
-            <button id="deploy-btn">Deploy Agent</button>
+            <button id="simulate-btn" class="secondary">Run Simulation</button>
+            <button id="deploy-btn">Publish Agent</button>
           </div>
         </header>
 
-        <section id="dashboard" class="screen active">
-          <div class="grid cards">
-            <article class="card"><h3>Agents</h3><p id="agents-count">4</p></article>
-            <article class="card"><h3>Conversations Today</h3><p id="conversations-count">1,284</p></article>
-            <article class="card"><h3>Automation Rate</h3><p id="automation-rate">73%</p></article>
-            <article class="card"><h3>CSAT</h3><p id="csat">4.6 / 5</p></article>
+        <section id="overview" class="screen active">
+          <div class="stats-grid">
+            <article class="card"><h3>Conversations (24h)</h3><p id="kpi-conversations">1,284</p></article>
+            <article class="card"><h3>Automation Rate</h3><p id="kpi-automation">73%</p></article>
+            <article class="card"><h3>Avg First Response</h3><p>5.4 sec</p></article>
+            <article class="card"><h3>CSAT</h3><p>4.6 / 5</p></article>
           </div>
           <article class="panel">
-            <h3>Recent Activity</h3>
-            <ul id="activity-list"></ul>
+            <h3>Automation by Intent</h3>
+            <div id="intent-bars" class="bars"></div>
           </article>
         </section>
 
-        <section id="builder" class="screen">
-          <div class="builder-layout">
+        <section id="studio" class="screen">
+          <div class="studio-layout">
             <article class="panel">
-              <h3>Flow Nodes</h3>
-              <div id="node-palette" class="node-palette"></div>
+              <h3>Node Library</h3>
+              <div id="node-library"></div>
             </article>
             <article class="panel">
               <h3>Flow Canvas</h3>
               <div id="flow-canvas" class="flow-canvas"></div>
+              <form id="add-step-form" class="inline-form">
+                <input id="new-step-label" placeholder="Add step label" required />
+                <button type="submit">Add Step</button>
+              </form>
             </article>
             <article class="panel">
-              <h3>Node Properties</h3>
-              <form id="node-form">
-                <label>Label <input id="node-label" /></label>
-                <label>Message <textarea id="node-message"></textarea></label>
-                <button type="submit">Save Node</button>
+              <h3>Step Properties</h3>
+              <form id="step-form">
+                <label>Step name <input id="step-label" required /></label>
+                <label>Bot message <textarea id="step-message" required></textarea></label>
+                <button type="submit">Save</button>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section id="inbox" class="screen">
+          <div class="inbox-layout">
+            <article class="panel">
+              <h3>Live Queue</h3>
+              <ul id="conversation-list" class="list"></ul>
+            </article>
+            <article class="panel">
+              <h3>Conversation Simulator</h3>
+              <div id="chat-window" class="chat-window"></div>
+              <form id="chat-form" class="inline-form">
+                <input id="chat-input" placeholder="Type customer message..." required />
+                <button type="submit">Send</button>
               </form>
             </article>
           </div>
@@ -64,19 +96,19 @@
 
         <section id="knowledge" class="screen">
           <article class="panel">
-            <h3>Knowledge Articles</h3>
+            <h3>Knowledge Hub</h3>
             <form id="kb-form" class="inline-form">
-              <input id="kb-title" placeholder="Article title" required />
-              <button type="submit">Add</button>
+              <input id="kb-title" placeholder="Add article title" required />
+              <button type="submit">Add Article</button>
             </form>
-            <ul id="kb-list"></ul>
+            <ul id="kb-list" class="list"></ul>
           </article>
         </section>
 
         <section id="channels" class="screen">
           <article class="panel">
-            <h3>Connected Channels</h3>
-            <div class="channel-list" id="channel-list"></div>
+            <h3>Omnichannel Integrations</h3>
+            <div id="channel-list" class="channel-list"></div>
           </article>
         </section>
 
@@ -84,7 +116,7 @@
           <article class="panel">
             <h3>Intent Performance</h3>
             <table>
-              <thead><tr><th>Intent</th><th>Volume</th><th>Resolution</th></tr></thead>
+              <thead><tr><th>Intent</th><th>Volume</th><th>Containment</th><th>Escalation</th></tr></thead>
               <tbody id="intent-table"></tbody>
             </table>
           </article>

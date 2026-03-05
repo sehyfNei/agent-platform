@@ -1,25 +1,25 @@
-# Agent Platform Replica (Yellow.ai-inspired)
+# AI Agent Platform Replica (Yellow.ai-style)
 
-This repository contains a lightweight front-end replica inspired by enterprise conversational AI platforms like Yellow.ai.
+This repo now includes a richer front-end replica inspired by demos of enterprise platforms like Yellow.ai.
 
-## What this prototype includes
+## Included modules
 
-- **Dashboard** with operational metrics and recent activity.
-- **Agent Builder** with a node palette, editable flow canvas, and properties panel.
-- **Knowledge Base** list management for FAQ/article-style content.
-- **Channels** overview with connected/not-connected channel states.
-- **Analytics** table for intent volume and resolution rates.
-- **Deployment and simulation actions** with toast feedback.
+- **Overview**: KPI cards and intent automation bars.
+- **Studio**: Node library, journey canvas, and editable step properties.
+- **Inbox**: Live queue list plus conversation simulator.
+- **Knowledge**: Add/list article sources.
+- **Channels**: Omnichannel integration states.
+- **Analytics**: Intent table with volume, containment, and escalation.
 
-## Run locally
+## Run
 
 ```bash
 python3 -m http.server 4173
 ```
 
-Open `http://localhost:4173` in your browser.
+Open `http://localhost:4173`.
 
-## Notes
+## Scope
 
-- Internet access to Yellow.ai was blocked in this environment, so the replica is based on common conversational AI platform UX patterns.
-- This is a front-end prototype intended as a foundation for a fuller product (auth, APIs, persistence, multi-tenant data model, NLU pipeline, etc.).
+- Front-end only (in-memory state, no backend persistence).
+- Designed as a high-fidelity UX starting point for real APIs, auth, and orchestration services.
