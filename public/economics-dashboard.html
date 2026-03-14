@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assisted Economics Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <strong>EcoPrep AI</strong>
+    <nav>
+      <a href="/index.html">Landing</a>
+      <a href="/learn.html">AI Learn</a>
+      <a href="/economics-dashboard.html">Economics Dashboard</a>
+      <a href="/econometrics-dashboard.html">Econometrics Dashboard</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="card">
+    <h1>AI Assisted Economics Dashboard</h1>
+    <p>Macro indicators with AI-generated exam interpretation.</p>
+    <table class="table" id="eco-table">
+      <thead><tr><th>Indicator</th><th>Value</th><th>Trend</th><th>Exam Insight</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+<script>
+  async function init() {
+    const res = await fetch('/api/dashboard/economics');
+    const data = await res.json();
+    const tbody = document.querySelector('#eco-table tbody');
+    tbody.innerHTML = data.dashboard.map(item => `
+      <tr>
+        <td>${item.indicator}</td>
+        <td>${item.value}</td>
+        <td>${item.trend}</td>
+        <td>${item.insight}</td>
+      </tr>`).join('');
+  }
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assisted Understanding | EcoPrep AI</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <strong>EcoPrep AI</strong>
+    <nav>
+      <a href="/index.html">Landing</a>
+      <a href="/learn.html">AI Learn</a>
+      <a href="/economics-dashboard.html">Economics Dashboard</a>
+      <a href="/econometrics-dashboard.html">Econometrics Dashboard</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="grid-2">
+    <div class="card">
+      <h2>Paste article link or topic text</h2>
+      <form id="summary-form">
+        <select id="sourceType">
+          <option value="news_link">News Link</option>
+          <option value="article_text">Article Text</option>
+          <option value="report_note">Report Notes</option>
+        </select>
+        <input id="sourceLink" placeholder="Paste URL (optional if you add text)" />
+        <textarea id="inputText" rows="7" placeholder="Paste article/topic text here"></textarea>
+        <button type="submit">Generate AI Summary</button>
+      </form>
+      <small>Live summary uses Groq API if <code>GROQ_API_KEY</code> is configured in backend env.</small>
+    </div>
+    <div class="card">
+      <h2>Upload PDF and learn key topics</h2>
+      <form id="pdf-form">
+        <input type="file" id="pdfFile" accept="application/pdf" />
+        <button type="submit">Extract + Analyze PDF</button>
+      </form>
+      <small>PDF text extraction runs in browser using PDF.js, then sends extracted text to AI summarize API.</small>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>AI Output</h2>
+    <pre id="output" style="white-space: pre-wrap; color: #d6e7ff"></pre>
+  </section>
+</main>
+<script src="/learn.js" type="module"></script>
+</body>
+</html>
