@@ -1,0 +1,48 @@
+{
+  "economics": [
+    {
+      "indicator": "CPI Inflation",
+      "value": "5.1%",
+      "trend": "Cooling",
+      "insight": "Lower food inflation supports household purchasing power; watch core inflation stickiness for Mains answers."
+    },
+    {
+      "indicator": "Repo Rate",
+      "value": "6.50%",
+      "trend": "Hold",
+      "insight": "A pause indicates inflation-vs-growth balancing by RBI; mention transmission lag in descriptive answers."
+    },
+    {
+      "indicator": "IIP Growth",
+      "value": "4.8%",
+      "trend": "Moderate",
+      "insight": "Manufacturing recovery is broadening but capital goods momentum matters for durable growth narratives."
+    },
+    {
+      "indicator": "Fiscal Deficit",
+      "value": "5.8% of GDP",
+      "trend": "Consolidating",
+      "insight": "Deficit glide path supports macro stability; discuss quality of spending (capex vs revenue)."
+    }
+  ],
+  "econometrics": [
+    {
+      "model": "Inflation ~ Crude + Food Index",
+      "r2": "0.71",
+      "rmse": "0.84",
+      "interpretation": "Model explains inflation reasonably well; external commodity shocks remain key drivers."
+    },
+    {
+      "model": "GDP Growth ~ Investment + Exports",
+      "r2": "0.64",
+      "rmse": "1.12",
+      "interpretation": "Investment elasticity is stronger than exports in current sample period."
+    },
+    {
+      "model": "Unemployment ~ Growth + Skill Spending",
+      "r2": "0.58",
+      "rmse": "0.93",
+      "interpretation": "Growth reduces unemployment but public skill spending improves fit in post-pandemic data."
+    }
+  ]
+}

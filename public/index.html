@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoPrep AI | Competitive Exams Economics Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="nav-wrap">
+      <strong>EcoPrep AI</strong>
+      <nav>
+        <a href="/index.html">Landing</a>
+        <a href="/learn.html">AI Learn</a>
+        <a href="/economics-dashboard.html">Economics Dashboard</a>
+        <a href="/econometrics-dashboard.html">Econometrics Dashboard</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="card">
+        <span class="pill">For UPSC / RBI Grade B / SSC / State PCS</span>
+        <h1>Economics dashboard that turns complex data into exam-ready clarity.</h1>
+        <p>
+          Diverse economic data from RBI, WEF, market APIs and government reports, summarized by AI for easy understanding and faster revision.
+        </p>
+        <div>
+          <a class="pill" href="/learn.html">Start AI Assisted Learning</a>
+          <a class="pill" href="/economics-dashboard.html">Open Dashboard</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>AI + Microservices Background</h3>
+        <p>Autonomous agents ingest, clean, and summarize data daily.</p>
+        <div id="agents"></div>
+      </div>
+    </section>
+
+    <section class="grid-3">
+      <article class="card">
+        <h3>Data Sources</h3>
+        <p>RBI, WEF, state and central reports, AngelOne, Yahoo, Zerodha APIs, and scraped news.</p>
+      </article>
+      <article class="card">
+        <h3>LLM Sources</h3>
+        <p>Groq Qwen, GPT OSS, and Llama models for robust cross-verification and better explainability.</p>
+      </article>
+      <article class="card">
+        <h3>Infrastructure</h3>
+        <p>Deploy on Hostinger or Railway with Railway/Hostinger managed databases and API orchestration.</p>
+      </article>
+    </section>
+  </main>
+  <script>
+    async function loadAgents() {
+      const res = await fetch('/api/agents');
+      const data = await res.json();
+      document.getElementById('agents').innerHTML = data.agents
+        .map(a => `<span class="pill">${a.id}: ${a.cadence}</span>`)
+        .join('');
+    }
+    loadAgents();
+  </script>
+</body>
+</html>

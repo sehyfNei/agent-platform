@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Econometrics Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="nav-wrap">
+    <strong>EcoPrep AI</strong>
+    <nav>
+      <a href="/index.html">Landing</a>
+      <a href="/learn.html">AI Learn</a>
+      <a href="/economics-dashboard.html">Economics Dashboard</a>
+      <a href="/econometrics-dashboard.html">Econometrics Dashboard</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="card">
+    <h1>Econometrics Dashboard</h1>
+    <p>Model outputs and diagnostics for concept clarity in statistics/econometrics.</p>
+    <table class="table" id="metrics-table">
+      <thead><tr><th>Model</th><th>R²</th><th>RMSE</th><th>Interpretation</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+<script>
+  async function init() {
+    const res = await fetch('/api/dashboard/econometrics');
+    const data = await res.json();
+    const tbody = document.querySelector('#metrics-table tbody');
+    tbody.innerHTML = data.dashboard.map(item => `
+      <tr>
+        <td>${item.model}</td>
+        <td>${item.r2}</td>
+        <td>${item.rmse}</td>
+        <td>${item.interpretation}</td>
+      </tr>`).join('');
+  }
+  init();
+</script>
+</body>
+</html>
