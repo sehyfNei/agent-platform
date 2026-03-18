@@ -1,0 +1,110 @@
+{
+  "metrics": {
+    "conversations_24h": 1284,
+    "automation_rate": 73,
+    "first_response_sec": 5.4,
+    "csat": 4.6
+  },
+  "intents": [
+    {
+      "name": "Order Status",
+      "volume": 420,
+      "containment": 88,
+      "escalation": 12
+    },
+    {
+      "name": "Refund Request",
+      "volume": 196,
+      "containment": 79,
+      "escalation": 21
+    },
+    {
+      "name": "Product Search",
+      "volume": 388,
+      "containment": 82,
+      "escalation": 18
+    },
+    {
+      "name": "Cancel Subscription",
+      "volume": 88,
+      "containment": 74,
+      "escalation": 26
+    }
+  ],
+  "node_library": [
+    "Message",
+    "Question",
+    "Condition",
+    "API",
+    "Knowledge Search",
+    "Handoff"
+  ],
+  "flow": [
+    {
+      "id": 1,
+      "label": "Welcome",
+      "message": "Hi! I can help with orders, refunds, and product questions."
+    },
+    {
+      "id": 2,
+      "label": "Intent Detection",
+      "message": "Let me understand your request first."
+    },
+    {
+      "id": 3,
+      "label": "Fulfillment",
+      "message": "I found your order details. Would you like updates by WhatsApp?"
+    }
+  ],
+  "conversations": [
+    "Anika \u00b7 Order delay \u00b7 Waiting 2m",
+    "Ravi \u00b7 Refund status \u00b7 Waiting 30s",
+    "Maya \u00b7 Product recommendation \u00b7 Bot resolved"
+  ],
+  "chat": [
+    {
+      "role": "bot",
+      "text": "Hello! I am your virtual assistant. What can I help with?"
+    },
+    {
+      "role": "user",
+      "text": "Where is my order?"
+    },
+    {
+      "role": "bot",
+      "text": "Please share your order ID so I can check the status."
+    }
+  ],
+  "kb": [
+    "Return policy",
+    "Shipping SLAs by region",
+    "Subscription cancellation process"
+  ],
+  "channels": [
+    {
+      "name": "Website Widget",
+      "connected": true
+    },
+    {
+      "name": "WhatsApp",
+      "connected": true
+    },
+    {
+      "name": "Instagram",
+      "connected": false
+    },
+    {
+      "name": "Facebook Messenger",
+      "connected": false
+    },
+    {
+      "name": "Google Business Messages",
+      "connected": false
+    },
+    {
+      "name": "Slack (Internal)",
+      "connected": true
+    }
+  ],
+  "deployments": []
+}

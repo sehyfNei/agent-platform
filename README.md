@@ -1,25 +1,56 @@
-# AI Agent Platform Replica (Yellow.ai-style)
+# AI Agent Platform (Ready-to-Use Local Replica)
 
-This repo now includes a richer front-end replica inspired by demos of enterprise platforms like Yellow.ai.
+This project is a **usable local agent platform demo** inspired by Yellow.ai-style workflows.
 
-## Included modules
+Unlike a static mock, this version includes:
 
-- **Overview**: KPI cards and intent automation bars.
-- **Studio**: Node library, journey canvas, and editable step properties.
-- **Inbox**: Live queue list plus conversation simulator.
-- **Knowledge**: Add/list article sources.
-- **Channels**: Omnichannel integration states.
-- **Analytics**: Intent table with volume, containment, and escalation.
+- a Python backend API,
+- persistent local storage (`data/state.json`),
+- interactive UI that reads/writes real state.
 
-## Run
+## Features
+
+- **Overview**: KPI cards and intent containment bars.
+- **Studio**: Create and edit journey steps.
+- **Inbox**: Conversation queue + chatbot simulator.
+- **Knowledge**: Add knowledge articles.
+- **Channels**: Toggle channel connection states.
+- **Analytics**: Intent volume/containment/escalation table.
+- **Publish Agent**: records deployments with UTC timestamps.
+- **Reset Data**: restore default demo data.
+
+## Quick start
 
 ```bash
-python3 -m http.server 4173
+python3 server.py
 ```
 
-Open `http://localhost:4173`.
+Then open:
 
-## Scope
+- App: `http://127.0.0.1:4173`
+- Health: `http://127.0.0.1:4173/api/health`
 
-- Front-end only (in-memory state, no backend persistence).
-- Designed as a high-fidelity UX starting point for real APIs, auth, and orchestration services.
+## API endpoints
+
+- `GET /api/state` — full current state
+- `POST /api/flow` — add flow step (`{ label, message? }`)
+- `PUT /api/flow/:id` — update step (`{ label, message }`)
+- `POST /api/kb` — add knowledge article (`{ title }`)
+- `POST /api/chat` — append chat and generate simple bot reply (`{ text }`)
+- `PATCH /api/channels/:name` — toggle channel connectivity
+- `POST /api/simulate` — increments conversations metric
+- `POST /api/deploy` — records deployment entry
+- `POST /api/reset` — reset state to defaults
+
+## Data persistence
+
+State is stored in:
+
+- `data/state.json`
+
+You can delete that file or call `POST /api/reset` to restore defaults.
+
+## Notes
+
+- This is designed for local product prototyping and internal demos.
+- It can be extended with authentication, RBAC, and real LLM/NLU pipelines.

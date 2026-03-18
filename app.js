@@ -1,44 +1,15 @@
+const uiMeta = {
+  overview: 'Monitor automation, quality, and business outcomes.',
+  studio: 'Design conversational journeys with reusable building blocks.',
+  inbox: 'Track live conversations and simulate handoff scenarios.',
+  knowledge: 'Maintain trusted content for retrieval and FAQ responses.',
+  channels: 'Connect and govern omnichannel customer touchpoints.',
+  analytics: 'Measure containment, escalations, and intent-level quality.'
+};
+
 const state = {
-  screenMeta: {
-    overview: 'Monitor automation, quality, and business outcomes.',
-    studio: 'Design conversational journeys with reusable building blocks.',
-    inbox: 'Track live conversations and simulate handoff scenarios.',
-    knowledge: 'Maintain trusted content for retrieval and FAQ responses.',
-    channels: 'Connect and govern omnichannel customer touchpoints.',
-    analytics: 'Measure containment, escalations, and intent-level quality.'
-  },
-  intents: [
-    { name: 'Order Status', volume: 420, containment: 88, escalation: '12%' },
-    { name: 'Refund Request', volume: 196, containment: 79, escalation: '21%' },
-    { name: 'Product Search', volume: 388, containment: 82, escalation: '18%' },
-    { name: 'Cancel Subscription', volume: 88, containment: 74, escalation: '26%' }
-  ],
-  nodeLibrary: ['Message', 'Question', 'Condition', 'API', 'Knowledge Search', 'Handoff'],
-  flow: [
-    { id: 1, label: 'Welcome', message: 'Hi! I can help with orders, refunds, and product questions.' },
-    { id: 2, label: 'Intent Detection', message: 'Let me understand your request first.' },
-    { id: 3, label: 'Fulfillment', message: 'I found your order details. Would you like updates by WhatsApp?' }
-  ],
-  selectedStepId: 1,
-  conversations: [
-    'Anika · Order delay · Waiting 2m',
-    'Ravi · Refund status · Waiting 30s',
-    'Maya · Product recommendation · Bot resolved'
-  ],
-  chat: [
-    { role: 'bot', text: 'Hello! I am your virtual assistant. What can I help with?' },
-    { role: 'user', text: 'Where is my order?' },
-    { role: 'bot', text: 'Please share your order ID so I can check the status.' }
-  ],
-  kb: ['Return policy', 'Shipping SLAs by region', 'Subscription cancellation process'],
-  channels: [
-    { name: 'Website Widget', connected: true },
-    { name: 'WhatsApp', connected: true },
-    { name: 'Instagram', connected: false },
-    { name: 'Facebook Messenger', connected: false },
-    { name: 'Google Business Messages', connected: false },
-    { name: 'Slack (Internal)', connected: true }
-  ]
+  data: null,
+  selectedStepId: null
 };
 
 const el = {
@@ -50,6 +21,7 @@ const el = {
   simulateBtn: document.getElementById('simulate-btn'),
   toast: document.getElementById('toast'),
   kpiConversations: document.getElementById('kpi-conversations'),
+  kpiAutomation: document.getElementById('kpi-automation'),
   intentBars: document.getElementById('intent-bars'),
   nodeLibrary: document.getElementById('node-library'),
   flowCanvas: document.getElementById('flow-canvas'),
@@ -66,8 +38,22 @@ const el = {
   kbTitle: document.getElementById('kb-title'),
   kbList: document.getElementById('kb-list'),
   channelList: document.getElementById('channel-list'),
-  intentTable: document.getElementById('intent-table')
+  intentTable: document.getElementById('intent-table'),
+  resetBtn: document.getElementById('reset-btn')
 };
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `Request failed: ${response.status}`);
+  }
+  return payload;
+}
 
 function toast(message) {
   el.toast.textContent = message;
@@ -75,8 +61,19 @@ function toast(message) {
   setTimeout(() => el.toast.classList.remove('visible'), 1800);
 }
 
+async function loadState() {
+  state.data = await api('/api/state');
+  if (!state.selectedStepId && state.data.flow.length) {
+    state.selectedStepId = state.data.flow[0].id;
+  }
+}
+
 function renderOverview() {
-  el.intentBars.innerHTML = state.intents
+  const data = state.data;
+  el.kpiConversations.textContent = data.metrics.conversations_24h.toLocaleString();
+  el.kpiAutomation.textContent = `${data.metrics.automation_rate}%`;
+
+  el.intentBars.innerHTML = data.intents
     .map(
       (item) => `<div class="bar-row"><span>${item.name}</span><div class="track"><div class="fill" style="width:${item.containment}%"></div></div><strong>${item.containment}%</strong></div>`
     )
@@ -84,8 +81,10 @@ function renderOverview() {
 }
 
 function renderStudio() {
-  el.nodeLibrary.innerHTML = state.nodeLibrary.map((n) => `<div class="node">${n}</div>`).join('');
-  el.flowCanvas.innerHTML = state.flow
+  const data = state.data;
+  el.nodeLibrary.innerHTML = data.node_library.map((n) => `<div class="node">${n}</div>`).join('');
+
+  el.flowCanvas.innerHTML = data.flow
     .map(
       (step) =>
         `<button class="flow-step ${state.selectedStepId === step.id ? 'active' : ''}" data-id="${step.id}"><strong>${step.label}</strong><div>${step.message}</div></button>`
@@ -95,43 +94,63 @@ function renderStudio() {
   el.flowCanvas.querySelectorAll('.flow-step').forEach((btn) => {
     btn.addEventListener('click', () => selectStep(Number(btn.dataset.id)));
   });
+
+  const selected = data.flow.find((step) => step.id === state.selectedStepId);
+  if (selected) {
+    el.stepLabel.value = selected.label;
+    el.stepMessage.value = selected.message;
+  }
 }
 
 function renderInbox() {
-  el.conversationList.innerHTML = state.conversations.map((c) => `<li>${c}</li>`).join('');
-  el.chatWindow.innerHTML = state.chat
+  const data = state.data;
+  el.conversationList.innerHTML = data.conversations.map((c) => `<li>${c}</li>`).join('');
+  el.chatWindow.innerHTML = data.chat
     .map((m) => `<div class="msg ${m.role}">${m.text}</div>`)
     .join('');
   el.chatWindow.scrollTop = el.chatWindow.scrollHeight;
 }
 
 function renderKnowledge() {
-  el.kbList.innerHTML = state.kb.map((item) => `<li>${item}</li>`).join('');
+  el.kbList.innerHTML = state.data.kb.map((item) => `<li>${item}</li>`).join('');
 }
 
 function renderChannels() {
-  el.channelList.innerHTML = state.channels
+  el.channelList.innerHTML = state.data.channels
     .map(
-      (ch) =>
-        `<div class="channel ${ch.connected ? 'connected' : ''}"><strong>${ch.name}</strong><div class="status">${
-          ch.connected ? 'Connected' : 'Not connected'
-        }</div></div>`
+      (channel) =>
+        `<button class="channel ${channel.connected ? 'connected' : ''}" data-channel="${encodeURIComponent(
+          channel.name
+        )}"><strong>${channel.name}</strong><div class="status">${
+          channel.connected ? 'Connected' : 'Not connected'
+        } · click to toggle</div></button>`
     )
     .join('');
+
+  el.channelList.querySelectorAll('[data-channel]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      try {
+        await api(`/api/channels/${button.dataset.channel}`, { method: 'PATCH' });
+        await refresh();
+        toast('Channel status updated.');
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+  });
 }
 
 function renderAnalytics() {
-  el.intentTable.innerHTML = state.intents
-    .map((i) => `<tr><td>${i.name}</td><td>${i.volume}</td><td>${i.containment}%</td><td>${i.escalation}</td></tr>`)
+  el.intentTable.innerHTML = state.data.intents
+    .map(
+      (intent) =>
+        `<tr><td>${intent.name}</td><td>${intent.volume}</td><td>${intent.containment}%</td><td>${intent.escalation}%</td></tr>`
+    )
     .join('');
 }
 
 function selectStep(id) {
   state.selectedStepId = id;
-  const step = state.flow.find((item) => item.id === id);
-  if (!step) return;
-  el.stepLabel.value = step.label;
-  el.stepMessage.value = step.message;
   renderStudio();
 }
 
@@ -142,77 +161,133 @@ function setupNavigation() {
       el.navItems.forEach((n) => n.classList.toggle('active', n === item));
       el.screens.forEach((screen) => screen.classList.toggle('active', screen.id === target));
       el.screenTitle.textContent = item.textContent;
-      el.subtitle.textContent = state.screenMeta[target];
+      el.subtitle.textContent = uiMeta[target] || '';
     });
   });
 }
 
 function setupForms() {
-  el.stepForm.addEventListener('submit', (event) => {
+  el.stepForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const step = state.flow.find((item) => item.id === state.selectedStepId);
-    if (!step) return;
-    step.label = el.stepLabel.value.trim();
-    step.message = el.stepMessage.value.trim();
-    renderStudio();
-    toast('Journey step updated.');
+    try {
+      await api(`/api/flow/${state.selectedStepId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          label: el.stepLabel.value.trim(),
+          message: el.stepMessage.value.trim()
+        })
+      });
+      await refresh();
+      toast('Journey step saved.');
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
-  el.addStepForm.addEventListener('submit', (event) => {
+  el.addStepForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const label = el.newStepLabel.value.trim();
-    if (!label) return;
-    const id = Math.max(...state.flow.map((step) => step.id)) + 1;
-    state.flow.push({ id, label, message: 'Draft message...' });
-    el.newStepLabel.value = '';
-    selectStep(id);
-    toast('New journey step added.');
+    try {
+      const step = await api('/api/flow', {
+        method: 'POST',
+        body: JSON.stringify({ label: el.newStepLabel.value.trim() })
+      });
+      state.selectedStepId = step.id;
+      el.newStepLabel.value = '';
+      await refresh();
+      toast('New journey step added.');
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
-  el.chatForm.addEventListener('submit', (event) => {
+  el.chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const text = el.chatInput.value.trim();
-    if (!text) return;
-    state.chat.push({ role: 'user', text });
-    state.chat.push({ role: 'bot', text: 'Thanks! I am checking that in our system.' });
-    el.chatInput.value = '';
-    renderInbox();
+    try {
+      await api('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ text: el.chatInput.value.trim() })
+      });
+      el.chatInput.value = '';
+      await refresh();
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
-  el.kbForm.addEventListener('submit', (event) => {
+  el.kbForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const article = el.kbTitle.value.trim();
-    if (!article) return;
-    state.kb.unshift(article);
-    el.kbTitle.value = '';
-    renderKnowledge();
-    toast('Knowledge article added.');
+    try {
+      await api('/api/kb', {
+        method: 'POST',
+        body: JSON.stringify({ title: el.kbTitle.value.trim() })
+      });
+      el.kbTitle.value = '';
+      await refresh();
+      toast('Knowledge article added.');
+    } catch (error) {
+      toast(error.message);
+    }
   });
 }
 
 function setupActions() {
-  el.simulateBtn.addEventListener('click', () => {
-    const count = Number(el.kpiConversations.textContent.replace(/,/g, '')) + Math.floor(Math.random() * 20 + 4);
-    el.kpiConversations.textContent = count.toLocaleString();
-    toast('Simulation completed with synthetic traffic.');
+  el.simulateBtn.addEventListener('click', async () => {
+    try {
+      const response = await api('/api/simulate', { method: 'POST' });
+      await refresh();
+      toast(`Simulation complete (+${response.increment} conversations).`);
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
-  el.deployBtn.addEventListener('click', () => {
-    toast('Agent published to Website Widget and WhatsApp.');
+  el.deployBtn.addEventListener('click', async () => {
+    try {
+      const response = await api('/api/deploy', { method: 'POST' });
+      const channels = response.deployment.channels.join(', ') || 'No connected channels';
+      toast(`Published to: ${channels}`);
+    } catch (error) {
+      toast(error.message);
+    }
   });
+
+  el.resetBtn.addEventListener('click', async () => {
+    try {
+      await api('/api/reset', { method: 'POST' });
+      state.selectedStepId = null;
+      await refresh();
+      toast('Demo data reset.');
+    } catch (error) {
+      toast(error.message);
+    }
+  });
+
 }
 
-function init() {
+function renderAll() {
   renderOverview();
   renderStudio();
   renderInbox();
   renderKnowledge();
   renderChannels();
   renderAnalytics();
+}
+
+async function refresh() {
+  await loadState();
+  renderAll();
+}
+
+async function init() {
   setupNavigation();
   setupForms();
   setupActions();
-  selectStep(state.selectedStepId);
+
+  try {
+    await refresh();
+  } catch (error) {
+    toast(`Startup failed: ${error.message}`);
+  }
 }
 
 init();

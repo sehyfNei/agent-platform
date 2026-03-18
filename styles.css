@@ -86,8 +86,15 @@ textarea { min-height: 100px; }
 .msg.bot { background: #1f2b45; }
 
 .channel-list { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: .6rem; }
-.channel { border: 1px solid #334766; border-radius: .6rem; padding: .65rem; background: #0f1830; }
-.channel .status { color: var(--muted); font-size: .82rem; }
+.channel {
+  border: 1px solid #334766;
+  border-radius: .6rem;
+  padding: .65rem;
+  background: #0f1830;
+  width: 100%;
+  text-align: left;
+}
+.channel .status { color: var(--muted); font-size: .82rem; margin-top: .3rem; }
 .channel.connected { border-color: var(--ok); }
 
 table { width: 100%; border-collapse: collapse; }
@@ -104,4 +111,5 @@ th, td { border-bottom: 1px solid #293956; text-align: left; padding: .5rem .3re
   .layout { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
   .studio-layout, .inbox-layout { grid-template-columns: 1fr; }
+  .channel-list { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
 }
